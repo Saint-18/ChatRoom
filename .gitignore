@@ -1,0 +1,30 @@
+# List of files to exclude from GitHub publishing
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+gunicorn_start
+
+# Database files
+*.sql
+*.csv
+
+# Log files
+*.log
+
+# Images
+*.afdesign
+
+# OS generated files #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp

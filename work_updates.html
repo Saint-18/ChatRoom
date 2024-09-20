@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatroom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="application/javascript" src="script.js"></script>
+    <script src="chat.json"></script>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Container -->
+    <div class="flex h-screen">
+      <!-- Sidebar -->
+      <div class="w-64 bg-zinc-800 text-gray-300 flex flex-col">
+        <div class="p-4 text-3xl font-semibold">Chat App</div>
+        <div class="pl-4 pt-4 pb-2 text-xl font-semibold">Chats</div>
+        <ul class="flex flex-col space-y-2 px-4 pb-4">
+          <li>
+            <a href="#" class="block py-2 px-4 text-orange-400 hover:text-orange-300"
+              >Create chat</a
+            >
+          </li>
+          <li>
+            <a href="chatroom.html" class="block py-2 px-4 hover:bg-emerald-700 hover:text-gray-200 rounded">Team Chat</a>
+          </li>
+          <li>
+            <a href="work_updates.html" class="block py-2 px-4 bg-emerald-700 text-gray-200 rounded"
+              >Work Updates</a
+            >
+          </li>
+          <li>
+            <a href="#" class="block py-2 px-4 hover:bg-emerald-700 hover:text-gray-200 rounded"
+              >CS410</a
+            >
+          </li>
+        </ul>
+        <div class="pl-4 pt-4 pb-2 text-xl font-semibold">Options</div>
+        <ul class="flex flex-col space-y-4 px-4 pb-4">
+          <li>
+            <a href="#" class="block py-2 px-4 hover:bg-emerald-700 hover:text-gray-200 rounded"
+              >Settings</a
+            >
+          </li>
+        </ul>
+      </div>
+      <!-- Main content -->
+      <div id="wrapper" class="w-full max-w-5xl">
+      </div>
+      </form>
+    </div>
+  </body>
+</html>

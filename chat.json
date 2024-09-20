@@ -1,0 +1,37 @@
+const content = `[
+  {
+    "username": "jdoe123",
+    "first_name": "John",
+    "last_name": "Doe",
+    "timestamp": "2024-09-13T10:15:30Z",
+    "message": "Hey, are we still meeting later?"
+  },
+  {
+    "username": "asmith456",
+    "first_name": "Alice",
+    "last_name": "Smith",
+    "timestamp": "2024-09-13T10:17:00Z",
+    "message": "Yeah, I'll be there at 2 PM."
+  },
+  {
+    "username": "bjones789",
+    "first_name": "Brian",
+    "last_name": "Jones",
+    "timestamp": "2024-09-13T10:18:45Z",
+    "message": "Can we push it to 3 PM? Running late."
+  },
+  {
+    "username": "jdoe123",
+    "first_name": "John",
+    "last_name": "Doe",
+    "timestamp": "2024-09-13T10:20:15Z",
+    "message": "That works for me. See you then."
+  },
+  {
+    "username": "asmith456",
+    "first_name": "Alice",
+    "last_name": "Smith",
+    "timestamp": "2024-09-13T10:21:30Z",
+    "message": "Same here. See you all at 3!"
+  }
+]`;
