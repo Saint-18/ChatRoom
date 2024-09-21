@@ -1,9 +1,21 @@
 import mysql.connector
 import dotenv
 
+""" 
+This file controls interaction with the MySQL database
+for more information on the mysql.connector package
+see documentation at 
+https://dev.mysql.com/doc/connector-python/en/connector-python-examples.html
+"""
+
 
 def create_database_connection():
-    # Read database credentials
+    """
+    Creates a connection to the MySQL database
+    Inputs: None
+    Return: cnx - MySQLConnection object
+    """
+    # Read database credentials from .env file
     credentials = dotenv.dotenv_values(".env")
 
     # database configuration information
@@ -28,6 +40,7 @@ def get_messages(cnx: object, chat_id: int):
     Returns: Array of JSON objects
     """
     # Create a cursor from the connection object (cnx)
+    # dictionary=True returns results as JSON
     cursor = cnx.cursor(dictionary=True)
 
     # Create the database query
@@ -47,5 +60,10 @@ def get_messages(cnx: object, chat_id: int):
 
 
 def close_database_connection(cnx):
+    """
+    Closes the connection to the database
+    Input: cnx - MySQLConnection object
+    Return: None
+    """
     if cnx.is_connected():
         cnx.close()
