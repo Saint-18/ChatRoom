@@ -5,7 +5,8 @@
 .env.local
 .env.*.local
 gunicorn_start
-
+venv
+__pycache__
 # Database files
 *.sql
 *.csv
