@@ -5,16 +5,18 @@ import dotenv
 def create_database_connection():
     # Read database credentials
     credentials = dotenv.dotenv_values(".env")
+    print ("User: ", credentials.get("DATABASE_USER")) #checking if the username and password are being read correctly
+    print("Password:", credentials.get("DATABASE_PW"))
 
     # database configuration information
     config = {
         "user": credentials.get("DATABASE_USER"),
         "password": credentials.get("DATABASE_PW"),
         "host": "127.0.0.1",
-        "database": "chatapp",
+        "database": "chatroom",
         "raise_on_warnings": True,
     }
-
+    
     # establish a connection to the database
     cnx = mysql.connector.connect(**config)
     # Return the connection object
