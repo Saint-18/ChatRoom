@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const fullName = document.createElement("span");
       const timeStamp = document.createElement("span");
       const messageContent = document.createElement("p");
+      const deleteButton = document.createElement("button");
 
       // Format timestamp
       const datetime = new Date(m.timestamp);
@@ -93,6 +94,14 @@ document.addEventListener("DOMContentLoaded", function () {
       // Add content from JSON into HTML
       fullName.textContent = m.username;
       timeStamp.textContent = m.created_at;
+      //adding delete button after time stamp
+
+    deleteButton.textContent="Delete";
+    deleteButton.classList.add("text-red-500", "text-xs");
+    //js function to handle delete requests
+    deleteButton.onclick=function(){
+      deleteMessage(m.id);   //here m.id refers to message id
+    }
       messageContent.textContent = m.message_body;
 
       frame.appendChild(messageBox);
@@ -154,5 +163,19 @@ document.addEventListener("DOMContentLoaded", function () {
     formWindow.appendChild(formFrame);
     formFrame.appendChild(input);
     formFrame.appendChild(button);
+  }
+
+  async function deleteMessage(messageId){
+    try{
+      const response =await fetch(`/api/messages/delete/${messageId}`, {method: 'POST', 
+    });
+    if(!response.ok){
+      throw new Error ('Failed to delete message');
+    }
+    //option to remove message from UI
+    document.getElementById(`message-${messageId}`).remove();
+    } catch(error){
+      alert('An error occured while deleting the message');
+    }
   }
 });
