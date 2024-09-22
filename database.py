@@ -59,6 +59,33 @@ def get_messages(cnx: object, chat_id: int):
     return results
 
 
+def create_message(cnx: object, chat_id: int, username: str, message_body: str):
+    """
+    Posts a new message to the requested chatroom
+    Input: cnx - MySQL database connection object, chat_id - chatroom identifier
+           username - logged in user, message_body - text to post
+    Returns: None
+    """
+    try:
+        # Create a cursor from the connection object (cnx)
+        cursor = cnx.cursor()
+
+        # Create the database query
+        query = (
+            "INSERT INTO Messages (chat_id, user_id, message_body, status) "
+            "VALUES (%s, "
+            "(SELECT user_id FROM Users WHERE username = %s), "
+            "&s, 'approved');"
+        )
+
+        # Execute the query
+        cursor.execute(query, (chat_id, username, message_body))
+
+        return True
+    except:
+        return False
+
+
 def close_database_connection(cnx):
     """
     Closes the connection to the database
