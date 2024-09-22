@@ -1,4 +1,4 @@
-const content = `[
+[
   {
     "username": "jdoe123",
     "first_name": "John",
@@ -34,4 +34,4 @@ const content = `[
     "timestamp": "2024-09-13T10:21:30Z",
     "message": "Same here. See you all at 3!"
   }
-]`;
+]
