@@ -130,7 +130,7 @@ async def get_chatlist(request: Request):
         chats = database.get_approved_chats(cnx, username)
         # If error inserting message
         if not chats:
-            # Raise a 403 error
+            # Raise a 404 error
             raise HTTPException(status_code=404, detail="Unable to retrieve chats.")
         return chats
 
