@@ -25,13 +25,10 @@ async def read_root():
         return HTMLResponse(content=f.read())
 
 
-# Route for other pages in the static directory
-@app.get("/{page}", response_class=HTMLResponse)
-async def read_root(page):
-    # Open the requested page
-    with open(f"static/{page}", "r") as f:
-        # Return its contents as HTML
-        return HTMLResponse(content=f.read())
+# Route to handle empty chat page after login
+@app.get("/chat", response_class=HTMLResponse)
+async def display_chats(request: Request):
+    return templates.TemplateResponse(request=request, name="chat.html")
 
 
 # Route to handle dynamically loading chats using Jinja templating
@@ -79,11 +76,12 @@ async def create_messages(request: Request):
         # Initialize database connection
         cnx = database.create_database_connection()
         # Insert new message in database
-        results = database.create_message(cnx, chat_id, username, message_body)
+        message_created = database.create_message(cnx, chat_id, username, message_body)
         # If error inserting message
-        if not results:
+        if not message_created:
             # Raise a 404 error
             raise HTTPException(status_code=404, detail="Unable to create new message.")
+        return message_created
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occured {str(e)}")
@@ -91,9 +89,6 @@ async def create_messages(request: Request):
         # Ensure the connection exists before attempting to close
         if "cnx" in locals() and cnx:
             database.close_database_connection(cnx)
-
-    # Return the updated messages for this chat
-    # return read_messages(chat_id)
 
 
 # Route to login
@@ -106,14 +101,38 @@ async def handle_login_request(request: Request):
         # Initialize database connection
         cnx = database.create_database_connection()
         # Insert new message in database
-        results = database.get_login_details(cnx, username, password)
+        valid_user = database.validate_user(cnx, username, password)
         # If error inserting message
-        if not results:
+        if not valid_user:
             # Raise a 403 error
             raise HTTPException(
                 status_code=403, detail="Incorrect username or password."
             )
-        return results
+        return valid_user
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occured {str(e)}")
+    finally:
+        # Ensure the connection exists before attempting to close
+        if "cnx" in locals() and cnx:
+            database.close_database_connection(cnx)
+
+
+# Route to login
+@app.post("/api/get/chatlist")
+async def get_chatlist(request: Request):
+    r = await request.json()
+    username = r.get("username")
+    try:
+        # Initialize database connection
+        cnx = database.create_database_connection()
+        # Insert new message in database
+        chats = database.get_approved_chats(cnx, username)
+        # If error inserting message
+        if not chats:
+            # Raise a 403 error
+            raise HTTPException(status_code=404, detail="Unable to retrieve chats.")
+        return chats
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occured {str(e)}")
