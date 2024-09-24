@@ -3,6 +3,7 @@ from typing import Union, List, Dict
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from database import create_database_connection, get_messages, close_database_connection
 
 
 
@@ -60,9 +61,26 @@ def read_item(item_id: int, q: Union[str, None] = None):
 # marking a message for deletion without removing them from database
 @app.post("/api/messages/delete/{message_id}")
 def delete_message(message_id: int):
-    try:
-        print(f"Message{message_id}makrked for deletion by a moderator")
-        return{"detail: Message marked for deletion"}
-    except Exception as e:
-        print (f"Error occured :{str (e)}")
-        raise HTTPException(status_code=500, detail=f"An error occured: {str (e)}")
+     try:
+        cnx = create_database_connection()
+
+        # Check if the message exists and update status
+        cursor = cnx.cursor()
+        cursor.execute("SELECT * FROM Messages WHERE message_id = %s", (message_id,))
+        message = cursor.fetchone()
+
+        if message is None:
+            raise HTTPException(status_code=404, detail="Message not found")
+
+        # Update message status to 'deleted'
+        cursor.execute("UPDATE Messages SET status = 'deleted' WHERE message_id = %s", (message_id,))
+        cnx.commit()
+
+        print(f"Message {message_id} marked for deletion by a moderator")
+        return {"detail": "Message marked for deletion"}
+     except Exception as e:
+        print(f"Error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+     finally:
+        if "cnx" in locals() and cnx:
+            close_database_connection(cnx)
