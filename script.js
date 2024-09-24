@@ -1,8 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
   const wrapper = document.querySelector("#wrapper");
+  const list = document.querySelector("#chat-list");
   // Fetch messages from the FastAPI endpoint
-  const chatId = 2;
+  const currentURL = window.location.href;
+  const splitURL = currentURL.split("/");
+  // Update chatId based on URL
+  const chatId = splitURL[splitURL.length - 1];
+  // if (currentURL contains chat/something) call getMessages
+  if (Number.isInteger(Number(chatId))) {
+    getMessages(chatId);
+  }
   listenForLogin();
+  if (list) {
+    const cookieUser = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("username="))
+      ?.split("=")[1];
+    buildSidebar(cookieUser, chatId);
+  }
   function getMessages(chatId) {
     fetch(`/api/messages/get/${chatId}`)
       .then((response) => {
@@ -20,7 +35,51 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  function buildSidebar(chatId) {}
+  function buildSidebar(user, chatId) {
+    const request = {
+      username: user,
+    };
+
+    // Convert the object to JSON
+    const userJSON = JSON.stringify(request);
+    fetch("/api/get/chatlist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: userJSON,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          for (d of data) {
+            const listElement = document.createElement("li");
+            const link = document.createElement("a");
+            // if chatId is present, update the link to highlight chat in sidebar
+            link.classList.add(
+              "block",
+              "py-2",
+              "px-4",
+              "hover:bg-emerald-700",
+              "hover:text-gray-200",
+              "rounded"
+            );
+            if (d.chat_id == chatId) {
+              link.classList.add("bg-emerald-700", "text-gray-200");
+            }
+            link.setAttribute("id", d.chat_id);
+            link.setAttribute("href", "/chat/" + d.chat_id);
+            link.textContent = d.chat_title;
+            list.appendChild(listElement);
+            listElement.appendChild(link);
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error loading chats.");
+      });
+  }
 
   function listenForLogin() {
     const form = document.getElementById("loginForm");
@@ -53,10 +112,10 @@ document.addEventListener("DOMContentLoaded", function () {
         })
           .then((response) => response.json())
           .then((data) => {
-            // Set cookie
-            // setCookie("username", username, 7);
-            console.log("Login data:", data);
-            // window.location.href = "/chat";
+            if (data) {
+              setCookie("username", username, 7);
+              window.location.href = "/chat";
+            }
           })
           .catch((error) => {
             console.error("Error:", error);
@@ -80,6 +139,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function displayMessages(wrapper, messages) {
+    const cookieUser = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("username="))
+      ?.split("=")[1];
     const messageWindow = document.createElement("div");
     messageWindow.classList.add("flex-1", "p-8");
     wrapper.appendChild(messageWindow);
@@ -117,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Append classes to elements
       nameDiv.classList.add("flex", "items-center", "space-x-2");
-      if (m.username === "jdoe123") {
+      if (m.username === cookieUser) {
         messageBox.classList.add("flex", "items-start", "gap-2.5", "justify-end", "mt-4");
         message.classList.add(
           "flex",
@@ -165,6 +228,9 @@ document.addEventListener("DOMContentLoaded", function () {
       nameDiv.appendChild(timeStamp);
       message.appendChild(messageContent);
     }
+    setTimeout(() => {
+      frame.scrollTop = frame.scrollHeight;
+    }, 0);
   }
 
   function createMessageEntryForm(wrapper) {
@@ -238,41 +304,45 @@ document.addEventListener("DOMContentLoaded", function () {
       form.addEventListener("submit", function (e) {
         e.preventDefault();
 
+        const cookieUser = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("username="))
+          ?.split("=")[1];
+
         // Capture the message content
         const messageText = document.getElementById("messageText").value;
 
         // Create a message object, need to also pass in username and chat_id
         // for db update
         const messageData = {
-          username: "username",
-          chat_id: "chat_id",
+          username: cookieUser,
+          chat_id: chatId,
           messageText: messageText,
         };
 
         // Convert the object to JSON
         const messageJSON = JSON.stringify(messageData);
 
-        console.log(messageJSON);
-        form.reset();
-        // location.reload(true);
+        fetch("/api/messages/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: messageJSON,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if ((data.status = 200)) {
+              form.reset();
+              location.reload(true);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
       });
     } else {
       console.log("Unable to locate message input field");
     }
   }
-
-  /* fetch("/api/messages/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: messageJSON,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      }); */
 });
