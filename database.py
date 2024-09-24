@@ -43,13 +43,9 @@ def get_messages(cnx: object, chat_id: int):
     # dictionary=True returns results as JSON
     cursor = cnx.cursor(dictionary=True)
 
-    # TODO: Add message_id into JSON return
-    #       Insert message_id into HTML as ID tag for each message using JS
-    # TODO: Add role - need to show all messages if moderator, else only approved
-
     # Create the database query
     query = (
-        "SELECT Users.username, Messages.message_body, Messages.created_at "
+        "SELECT Users.username, Messages.message_body, Messages.created_at, Messages.message_id "
         "FROM Messages JOIN Users ON Messages.user_id = Users.user_id JOIN Chats ON Messages.chat_id = Chats.chat_id "
         "WHERE Messages.status = 'approved' AND Chats.chat_id = %s "
         "ORDER BY Messages.created_at;"
