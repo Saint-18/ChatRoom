@@ -59,6 +59,7 @@ def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
 # marking a message for deletion without removing them from database
+# imported "create database connection"and "close database connection" from "database" and update the data in database accordingly.
 @app.post("/api/messages/delete/{message_id}")
 def delete_message(message_id: int):
      try:
