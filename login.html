@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="application/javascript" src="/static/script.js"></script>
+  </head>
+  <body class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div
+      class="flex-1 block max-w-sm items-center p-8 flex-col bg-gray-200 border border-slate-200 rounded-lg shadow"
+    >
+      <h2 class="pb-4 text-2xl font-semibold">Chat App</h2>
+      <h3 class="pb-4 text-xl font-semibold">Login</h3>
+      <form id="loginForm" class="block">
+        <input
+          id="username"
+          type="text"
+          placeholder="Username"
+          class="bg-gray-50 border border-gray-300 text-gray-900 w-60 mb-4 text-sm rounded-lg focus:outline-none ring-emerald-500 focus:border-emerald-500 block p-2.5 mr-2"
+          required
+        />
+        <input
+          id="password"
+          type="password"
+          placeholder="Password"
+          class="bg-gray-50 border border-gray-300 text-gray-900 w-60 mb-10 text-sm rounded-lg focus:outline-none ring-emerald-500 focus:border-emerald-500 block p-2.5 mr-2"
+          required
+        />
+        <button
+          id="loginButton"
+          class="text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm w-40 sm:w-auto px-5 py-2.5 text-center"
+          type="submit"
+        >
+          Login
+        </button>
+      </form>
+    </div>
+  </body>
+</html>
