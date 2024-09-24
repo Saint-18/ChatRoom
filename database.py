@@ -92,7 +92,7 @@ def create_message(cnx: object, chat_id: int, username: str, message_body: str):
 
 def get_login_details(cnx: object, username: str, password: str):
     """
-    Retrieves all message for the requested chatroom
+    Validates username and password, returns a list of approved chats and role within chat
     Input: cnx - MySQL database connection object, username - string username, password - string password
     Returns: Array of JSON objects
     """
