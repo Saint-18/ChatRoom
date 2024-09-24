@@ -79,20 +79,20 @@ def create_message(cnx: object, chat_id: int, username: str, message_body: str):
             "INSERT INTO Messages (chat_id, user_id, message_body, status) "
             "VALUES (%s, "
             "(SELECT user_id FROM Users WHERE username = %s), "
-            "&s, 'approved');"
+            "%s, 'approved');"
         )
 
         # Execute the query
         cursor.execute(query, (chat_id, username, message_body))
-
+        cnx.commit()
         return True
     except:
         return False
 
 
-def get_login_details(cnx: object, username: str, password: str):
+def validate_user(cnx: object, username: str, password: str):
     """
-    Validates username and password, returns a list of approved chats and role within chat
+    Validates username and password, returns True if approved for login
     Input: cnx - MySQL database connection object, username - string username, password - string password
     Returns: Array of JSON objects
     """
@@ -111,28 +111,36 @@ def get_login_details(cnx: object, username: str, password: str):
     cursor.execute(query, (username, password))
     # Fetch results
     user_id = cursor.fetchall()
-
-    # If the user_id is found, get list of approved chats and role
     if user_id:
-        # Create a cursor from the connection object (cnx)
-        # dictionary=True returns results as JSON
-        cursor = cnx.cursor(dictionary=True)
-
-        # Create the database query
-        query = (
-            "SELECT Chats.chat_id, Chats.chat_title, Chat_Members.role "
-            "FROM Chats JOIN Chat_Members ON Chats.chat_id = Chat_Members.chat_id JOIN Users ON Users.user_id = Chat_Members.user_id "
-            "WHERE Users.username = %s;"
-        )
-
-        # Execute the query
-        cursor.execute(query, (username,))
-        # Fetch results
-        results = cursor.fetchall()
-
-        return results
+        return True
     else:
-        return None
+        return False
+
+
+def get_approved_chats(cnx: object, username: str):
+    """
+    Gets a list of approved chats and role within chat
+    Input: cnx - MySQL database connection object, username - string username
+    Returns: Array of JSON objects
+    """
+
+    # Create a cursor from the connection object (cnx)
+    # dictionary=True returns results as JSON
+    cursor = cnx.cursor(dictionary=True)
+
+    # Create the database query
+    query = (
+        "SELECT Chats.chat_id, Chats.chat_title, Chat_Members.role "
+        "FROM Chats JOIN Chat_Members ON Chats.chat_id = Chat_Members.chat_id JOIN Users ON Users.user_id = Chat_Members.user_id "
+        "WHERE Users.username = %s;"
+    )
+
+    # Execute the query
+    cursor.execute(query, (username,))
+    # Fetch results
+    results = cursor.fetchall()
+
+    return results
 
 
 def close_database_connection(cnx: object):
