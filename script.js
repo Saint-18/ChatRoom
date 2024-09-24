@@ -166,16 +166,23 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function deleteMessage(messageId){
-    try{
-      const response =await fetch(`/api/messages/delete/${messageId}`, {method: 'POST', 
-    });
-    if(!response.ok){
-      throw new Error ('Failed to delete message');
-    }
-    //option to remove message from UI
-    document.getElementById(`message-${messageId}`).remove();
-    } catch(error){
-      alert('An error occured while deleting the message');
-    }
+    try {
+      const response = await fetch(`/api/messages/delete/${messageId}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(data.detail); // Handle success message
+
+  } catch (error) {
+      console.error('Error:', error);
+  }
   }
 });
