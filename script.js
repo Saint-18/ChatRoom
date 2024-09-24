@@ -2,20 +2,82 @@ document.addEventListener("DOMContentLoaded", function () {
   const wrapper = document.querySelector("#wrapper");
   // Fetch messages from the FastAPI endpoint
   const chatId = 2;
-  fetch(`/api/messages/get/${chatId}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network error");
-      }
-      return response.json();
-    })
-    .then((messages) => {
-      displayMessages(wrapper, messages);
-      createMessageEntryForm(wrapper);
-    })
-    .catch((error) => {
-      console.error("Error fetching messages:", error);
-    });
+  listenForLogin();
+  function getMessages(chatId) {
+    fetch(`/api/messages/get/${chatId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network error");
+        }
+        return response.json();
+      })
+      .then((messages) => {
+        displayMessages(wrapper, messages);
+        createMessageEntryForm(wrapper);
+      })
+      .catch((error) => {
+        console.error("Error fetching messages:", error);
+      });
+  }
+
+  function buildSidebar(chatId) {}
+
+  function listenForLogin() {
+    const form = document.getElementById("loginForm");
+
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Get the values of the input fields
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        // Send the data to the Python backend
+        // TODO: Create backend route to handle login
+        // TODO: Add database processing to return authorized chat list
+
+        const loginData = {
+          username: username,
+          password: password,
+        };
+
+        // Convert the object to JSON
+        const loginJSON = JSON.stringify(loginData);
+        fetch("/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: loginJSON,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Set cookie
+            // setCookie("username", username, 7);
+            console.log("Login data:", data);
+            // window.location.href = "/chat";
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Login failed. Please try again.");
+          });
+      });
+    }
+  }
+
+  function setCookie(name, value, days) {
+    let expires = "";
+
+    if (days) {
+      const date = new Date();
+      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      expires = "; expires=" + date.toUTCString();
+    }
+
+    // Set the cookie
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+  }
 
   function displayMessages(wrapper, messages) {
     const messageWindow = document.createElement("div");
@@ -39,6 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     for (m of messages) {
       // Create DOM elements
+      // TODO: Insert message_id into HTML as ID tag for each message
       const messageBox = document.createElement("div");
       const message = document.createElement("div");
       const nameDiv = document.createElement("div");
@@ -106,11 +169,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function createMessageEntryForm(wrapper) {
     const formWindow = document.createElement("form");
+    formWindow.setAttribute("id", "newMessage");
     formWindow.classList.add("max-w-5xl");
     wrapper.appendChild(formWindow);
 
     const formFrame = document.createElement("div");
     const input = document.createElement("input");
+    input.setAttribute("id", "messageText");
     const button = document.createElement("button");
 
     formFrame.classList.add("flex", "mb-5", "px-8");
@@ -154,5 +219,60 @@ document.addEventListener("DOMContentLoaded", function () {
     formWindow.appendChild(formFrame);
     formFrame.appendChild(input);
     formFrame.appendChild(button);
+
+    listenForSumbit();
   }
+
+  /* Handles chat message submission
+  TODO: Tie into backend API to add message to database
+        and reload the page with updated chats.
+        use location.reload(true); to force reload
+  NEED: Username from session cookie after login, 
+        chat_id from HTML tag (return with user chats list upon login)
+
+  */
+  function listenForSumbit() {
+    const form = document.getElementById("newMessage");
+
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Capture the message content
+        const messageText = document.getElementById("messageText").value;
+
+        // Create a message object, need to also pass in username and chat_id
+        // for db update
+        const messageData = {
+          username: "username",
+          chat_id: "chat_id",
+          messageText: messageText,
+        };
+
+        // Convert the object to JSON
+        const messageJSON = JSON.stringify(messageData);
+
+        console.log(messageJSON);
+        form.reset();
+        // location.reload(true);
+      });
+    } else {
+      console.log("Unable to locate message input field");
+    }
+  }
+
+  /* fetch("/api/messages/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: messageJSON,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      }); */
 });
