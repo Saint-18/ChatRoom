@@ -64,7 +64,7 @@ def create_message(cnx: object, chat_id: int, username: str, message_body: str):
     Posts a new message to the requested chatroom
     Input: cnx - MySQL database connection object, chat_id - chatroom identifier
            username - logged in user, message_body - text to post
-    Returns: None
+    Returns: Boolean
     """
     try:
         # Create a cursor from the connection object (cnx)
@@ -137,6 +137,27 @@ def get_approved_chats(cnx: object, username: str):
     results = cursor.fetchall()
 
     return results
+
+
+def delete_message(cnx, message_id):
+    """
+    Hides specified message
+    Input: cnx - MySQL database connection object, message_id - identifier for message
+    Returns: Boolean
+    """
+    try:
+        # Create a cursor from the connection object (cnx)
+        cursor = cnx.cursor()
+
+        # Create the database query
+        query = "UPDATE Messages SET status = 'hidden' WHERE message_id = %s;"
+
+        # Execute the query
+        cursor.execute(query, (message_id,))
+        cnx.commit()
+        return True
+    except:
+        return False
 
 
 def close_database_connection(cnx: object):
