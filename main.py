@@ -140,3 +140,27 @@ async def get_chatlist(request: Request):
         # Ensure the connection exists before attempting to close
         if "cnx" in locals() and cnx:
             database.close_database_connection(cnx)
+
+
+# Route to login
+@app.post("/api/messages/delete")
+async def remove_message(request: Request):
+    r = await request.json()
+    message_id = r.get("message_id")
+    try:
+        # Initialize database connection
+        cnx = database.create_database_connection()
+        # Insert new message in database
+        removed = database.delete_message(cnx, message_id)
+        # If error inserting message
+        if not removed:
+            # Raise a 404 error
+            raise HTTPException(status_code=404, detail="Unable to remove message.")
+        return removed
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occured {str(e)}")
+    finally:
+        # Ensure the connection exists before attempting to close
+        if "cnx" in locals() and cnx:
+            database.close_database_connection(cnx)

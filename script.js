@@ -53,6 +53,9 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((data) => {
         if (data) {
           for (d of data) {
+            if (d.role == "moderator") {
+              setCookie(d.role, d.chat_id, 7);
+            }
             const listElement = document.createElement("li");
             const link = document.createElement("a");
             // if chatId is present, update the link to highlight chat in sidebar
@@ -91,10 +94,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Get the values of the input fields
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
-
-        // Send the data to the Python backend
-        // TODO: Create backend route to handle login
-        // TODO: Add database processing to return authorized chat list
 
         const loginData = {
           username: username,
@@ -139,9 +138,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function displayMessages(wrapper, messages) {
+    console.log(messages);
     const cookieUser = document.cookie
       .split("; ")
       .find((row) => row.startsWith("username="))
+      ?.split("=")[1];
+    const moderatorOf = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("moderator="))
       ?.split("=")[1];
     const messageWindow = document.createElement("div");
     messageWindow.classList.add("flex-1", "p-8");
@@ -164,7 +168,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     for (m of messages) {
       // Create DOM elements
-      // TODO: Insert message_id into HTML as ID tag for each message
       const messageBox = document.createElement("div");
       const message = document.createElement("div");
       const nameDiv = document.createElement("div");
@@ -221,12 +224,29 @@ document.addEventListener("DOMContentLoaded", function () {
       timeStamp.textContent = m.created_at;
       messageContent.textContent = m.message_body;
 
+      messageBox.setAttribute("id", "message-" + m.message_id);
+
       frame.appendChild(messageBox);
       messageBox.appendChild(message);
       message.appendChild(nameDiv);
       nameDiv.appendChild(fullName);
       nameDiv.appendChild(timeStamp);
       message.appendChild(messageContent);
+
+      if (moderatorOf == chatId) {
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.classList.add("text-red-500", "text-xs");
+        deleteButton.setAttribute("id", "message-" + m.message_id);
+        //js function to handle delete requests
+        deleteButton.onclick = function (e) {
+          const buttonId = e.target.id;
+          const messageID = buttonId.split("-")[1];
+          console.log("button message id is " + messageID);
+          deleteMessage(messageID);
+        };
+        messageBox.appendChild(deleteButton);
+      }
     }
     setTimeout(() => {
       frame.scrollTop = frame.scrollHeight;
@@ -289,14 +309,6 @@ document.addEventListener("DOMContentLoaded", function () {
     listenForSumbit();
   }
 
-  /* Handles chat message submission
-  TODO: Tie into backend API to add message to database
-        and reload the page with updated chats.
-        use location.reload(true); to force reload
-  NEED: Username from session cookie after login, 
-        chat_id from HTML tag (return with user chats list upon login)
-
-  */
   function listenForSumbit() {
     const form = document.getElementById("newMessage");
 
@@ -343,6 +355,29 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     } else {
       console.log("Unable to locate message input field");
+    }
+  }
+
+  async function deleteMessage(messageId) {
+    console.log("Inside delete message function");
+    console.log("message id is: " + messageId);
+    try {
+      const response = await fetch(`/api/messages/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message_id: messageId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      } else {
+        const data = await response.json();
+        location.reload(true);
+      }
+    } catch (error) {
+      console.error("Error:", error);
     }
   }
 });
