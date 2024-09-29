@@ -24,4 +24,4 @@ Gunicorn/Uvicorn: ASGI server
 
 Database schema
 
-![schema.png](Chat%20App%20Project%20102c383b7605800d807bf414f60423e3/schema.png)
+![schema.png](schema.png)
